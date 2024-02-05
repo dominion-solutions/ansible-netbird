@@ -1,0 +1,24 @@
+---
+# tasks file for netbird
+- name: Check for Netbird Installation
+  ansible.builtin.shell:
+    cmd: netbird --version
+  ignore_errors: true
+  register: netbird_installed
+
+- name: Install netbird
+  ansible.builtin.shell: curl -fsSL https://pkgs.netbird.io/install.sh | sh
+  when: netbird_installed.rc != 0
+
+- name: Ensure netbird is not up
+  shell:
+    cmd: 'netbird status | grep "Daemon status"'
+  register: netbird_status
+  changed_when: false
+  ignore_errors: true
+  when: netbird_register is true
+
+- name: Start Netbird
+  become: true
+  ansible.builtin.shell: netbird up --setup-key="{{ netbird_setup_key }}"
+  when: netbird_register is true and 'NeedsLogin' in netbird_status.stdout
