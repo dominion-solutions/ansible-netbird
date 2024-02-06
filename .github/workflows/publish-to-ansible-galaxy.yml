@@ -7,6 +7,7 @@ jobs:
   ansible-publish:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
     - uses: ansible/ansible-publish-action@v1.0.0
       with:
         api_key: ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
