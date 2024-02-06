@@ -12,5 +12,5 @@ jobs:
     - uses: ansible/ansible-publish-action@v1.0.0
       with:
         api_key: ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
-        api_server: https://beta-galaxy.ansible.com/
+        api_server: https://galaxy.ansible.com/api/
         src_path: /github/workspace/dominion_solutions/netbird
