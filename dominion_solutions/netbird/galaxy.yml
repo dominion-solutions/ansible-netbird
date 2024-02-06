@@ -16,7 +16,7 @@ readme: README.md
 # A list of the collection's content authors. Can be just the name or in the format 'Full Name <email> (url)
 # @nicks:irc/im.site#channel'
 authors:
-- Mark J. Horninger <sales@dominion.solutions> (https://dominion.solutions)
+- Mark J. Horninger <sales@dominion.solutions>
 
 
 ### OPTIONAL but strongly recommended
