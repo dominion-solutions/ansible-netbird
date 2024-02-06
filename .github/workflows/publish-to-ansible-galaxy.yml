@@ -5,11 +5,9 @@ on:
       - main
 jobs:
   ansible-publish:
-    defaults:
-      run:
-        working-directory: ./dominion_solutions/netbird
     runs-on: ubuntu-latest
     steps:
     - uses: ansible/ansible-publish-action@v1.0.0
       with:
         api_key: ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
+        src_path: ./dominion_solutions/netbird
