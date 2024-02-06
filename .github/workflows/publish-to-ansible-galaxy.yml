@@ -1,7 +1,6 @@
 name: publish-to-ansible-galaxy
 on:
   tags:
-  - *
   push:
     branches:
       - main
