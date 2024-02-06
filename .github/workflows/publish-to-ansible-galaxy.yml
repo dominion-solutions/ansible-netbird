@@ -1,5 +1,10 @@
 name: publish-to-ansible-galaxy
-on: [tags]
+on:
+  tags:
+  - *
+  push:
+    branches:
+      - main
 jobs:
   ansible-publish:
     steps:
