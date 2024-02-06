@@ -5,6 +5,7 @@ on:
       - main
 jobs:
   ansible-publish:
+    runs-on: ubuntu-latest
     steps:
     - uses: ansible/ansible-publish-action@v1.0.0
       with:
