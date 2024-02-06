@@ -4,8 +4,10 @@ on:
     branches:
       - main
 jobs:
-  working-directory: ./dominion_solutions/netbird
   ansible-publish:
+    defaults:
+      run:
+        working-directory: ./dominion_solutions/netbird
     runs-on: ubuntu-latest
     steps:
     - uses: ansible/ansible-publish-action@v1.0.0
