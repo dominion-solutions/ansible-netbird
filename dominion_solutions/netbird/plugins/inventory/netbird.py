@@ -60,18 +60,21 @@ DOCUMENTATION = r"""
 
 EXAMPLES = r"""
 """
-from ansible.errors import AnsibleError, AnsibleParserError
+from ansible.errors import AnsibleError
+# TODO: Re-enable if necessary
+# , AnsibleParserError
 from ansible.utils.display import Display
 from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable
 
 # Specific for the NetbirdAPI Class
 import requests
-import json
+# import json
 
 display = Display()
 
+
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
-    NAME="dominion_solutions.netbird"
+    NAME = "dominion_solutions.netbird"
 
     def _build_client(self, loader):
         """Build the Netbird API Client"""
@@ -148,11 +151,13 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 peer.label,
                 strict=strict)
 
-### This is a very limited wrapper for the netbird API.
+
+# This is a very limited wrapper for the netbird API.
 class NetbirdApi:
-    def __init__ (self, api_key, api_url):
+    def __init__(self, api_key, api_url):
         self.api_key = api_key
         self.api_url = api_url
+
     def ListPeers(self):
         url = f"{self.api_url}/peers"
 
@@ -162,6 +167,7 @@ class NetbirdApi:
         }
         response = requests.request("GET", url, headers=headers)
         return response.text
+
 
 class Peer:
     def __init__(self, name, id, data):

@@ -6,7 +6,9 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 import pytest
-import sys
+
+# TODO: Reenable this if needed.
+# import sys
 
 from ansible.errors import AnsibleError
 from ansible.parsing.dataloader import DataLoader
