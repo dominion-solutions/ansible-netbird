@@ -11,7 +11,7 @@ import sys
 from ansible.errors import AnsibleError
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
-from ansible_collections.community.general.plugins.inventory.linode import InventoryModule
+from ansible_collections.dominion_solutions.netbird.plugins.inventory.netbird import InventoryModule
 
 
 @pytest.fixture(scope="module")
@@ -26,7 +26,7 @@ def test_missing_access_token_lookup(inventory):
     inventory._options = {'access_token': None}
     with pytest.raises(AnsibleError) as error_message:
         inventory._build_client(loader)
-        assert 'Could not retrieve Linode access token' in error_message
+        assert 'Could not retrieve Netbird access token' in error_message
 
 
 def test_verify_file(tmp_path, inventory):

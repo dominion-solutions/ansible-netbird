@@ -8,22 +8,54 @@ DOCUMENTATION = r"""
   version_added: "0.0.2"
   requirements:
     - requests>=2.31.0
-  short_description:
+  short_description: Get inventory from the Netbird API
   description:
-    -
+    - Get inventory from the Netbird API.  Allows for filtering based on Netbird Tags / Groups.
   extends_documentation_fragment:
     - constructed
     - inventory_cache
   options:
+    cache:
+        description: Cache plugin output to a file
+        type: boolean
+        default: true
+    cache_plugin:
+        description: Cache plugin to use for the inventory's cache
+        type: string
+        default: jsonfile
+        choices: ['memory', 'jsonfile', 'yaml', 'together', 'redis']
+    cache_connectoin:
+        description: Connection information for the cache plugin
+        type: string
+        default: None
+    cache_prefix:
+        description: Prefix to use for cache plugin files/tables
+        type: string
+        default: ANSIBLE_
+    plugin:
+        description: Marks this as an instance of the 'netbird' plugin.
+        required: true
+        choices: ['netbird', 'dominion_solutions.netbird']
     api_key:
       description: The API Key for the Netbird API.
       required: true
       type: string
       env:
         - name: NETBIRD_API_KEY
-  notes:
-    - if read in variable context, the file can be interpreted as YAML if the content is valid to the parser.
-    - this lookup does not understand globbing --- use the fileglob lookup instead.
+    api_url:
+      description: The URL for the Netbird API.
+      required: true
+      type: string
+      env:
+        - name: NETBIRD_API_URL
+    strict:
+        description: If true make invalid entries a fatal error, otherwise skip and continue
+        type: boolean
+        default: false
+    compose:
+        description: Whether or not to create composed groups based on the variables of the hosts
+        type: boolean
+        default: false
 """
 
 EXAMPLES = r"""
@@ -41,17 +73,26 @@ display = Display()
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     NAME="dominion_solutions.netbird"
 
-    def _build_client(self):
+    def _build_client(self, loader):
         """Build the Netbird API Client"""
+
         access_token = self.get_option('api_key')
         api_url = self.get_option('api_url')
+        if self.templar.is_template(access_token):
+            access_token = self.templar.template(access_token)
+        if self.templar.is_template(api_url):
+            api_url = self.templar.template(api_url)
+
         if access_token is None:
             raise AnsibleError("Could not retrieve the Netbird API Key from the configuration sources.")
-        self.client = NetbirdApi(self.get_option('api_key'), self.get_option('api_url'))
+        if api_url is None:
+            raise AnsibleError("Could not retrieve the Netbird API URL from the configuration sources.")
+
+        self.client = NetbirdApi(access_token, api_url)
 
     def _get_peer_inventory(self):
         """Get the inventory from the Netbird API"""
-        return json.loads(self.client.ListPeers())
+        self.peers = self.client.ListPeers()
 
     def parse(self, inventory, loader, path, cache=True):
         """Dynamically parse the inventory from the Netbird API"""
@@ -81,6 +122,31 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
         self.populate()
 
+    def populate(self):
+        strict = self.get_option('strict')
+
+        self._filter_by_config()
+
+        self._add_groups()
+        self._add_instances_to_groups()
+        self._add_hostvars_for_instances()
+        for peer in self.peers:
+            variables = self.inventory.get_host(peer.label).get_vars()
+            self._add_host_to_composed_groups(
+                self.get_option('groups'),
+                variables,
+                peer.label,
+                strict=strict)
+            self._add_host_to_keyed_groups(
+                self.get_option('keyed_groups'),
+                variables,
+                peer.label,
+                strict=strict)
+            self._set_composite_vars(
+                self.get_option('compose'),
+                variables,
+                peer.label,
+                strict=strict)
 
 ### This is a very limited wrapper for the netbird API.
 class NetbirdApi:
