@@ -9,4 +9,5 @@ pycparser==2.21
 PyYAML==6.0.1
 requests>=2.31.0
 resolvelib==1.0.1
+pytest-xdist==3.5.0
 pytest==8.0.0

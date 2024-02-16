@@ -70,9 +70,9 @@ from ansible.errors import AnsibleError
 from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable
 
 # Specific for the NetbirdAPI Class
+import json
 try:
     import requests
-# import json
 except ImportError:
     HAS_NETBIRD_API_LIBS = False
 else:
@@ -81,6 +81,7 @@ else:
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     NAME = "dominion_solutions.netbird"
+
 
     def _build_client(self, loader):
         """Build the Netbird API Client"""
@@ -168,17 +169,83 @@ class NetbirdApi:
         self.api_url = api_url
 
     def ListPeers(self):
-        url = f"{self.api_url}/peers"
+        """List all peers in the Netbird API
 
+        Returns:
+            peers: A list of Peer objects with the data.
+        """
+        url = f"{self.api_url}/peers"
         headers = {
             'Accept': 'application/json',
             'Authorization': f'Token {self.api_key}'
         }
+        peers = []
         response = requests.request("GET", url, headers=headers)
-        return response.text
+        peer_json = json.loads(response.text)
+        for current_peer_map in peer_json:
+            current_peer = Peer(current_peer_map["hostname"], current_peer_map["id"], current_peer_map)
+            peers.append(current_peer)
+        return peers
+
 
 
 class Peer:
+    # This is an example peers response from the Netbird API:
+    # [
+    #   {
+    #     "accessible_peers_count": 1,
+    #     "approval_required": false,
+    #     "connected": false,
+    #     "dns_label": "markh-precision-m4800.netbird.cloud",
+    #     "groups": [
+    #       {
+    #         "id": "cmsmmlafic3c73cd78kg",
+    #         "name": "All",
+    #         "peers_count": 2
+    #       }
+    #     ],
+    #     "hostname": "markh-Precision-M4800",
+    #     "id": "cmt3sqafic3c73cd7f90",
+    #     "ip": "100.126.169.224",
+    #     "last_login": "2024-02-10T22:01:27.744131502Z",
+    #     "last_seen": "2024-02-11T03:21:42.202104672Z",
+    #     "login_expiration_enabled": true,
+    #     "login_expired": false,
+    #     "name": "markh-Precision-M4800",
+    #     "os": "Linux Mint 21.3",
+    #     "ssh_enabled": false,
+    #     "ui_version": "netbird-desktop-ui/0.25.7",
+    #     "user_id": "auth0|65b96b458bfb53e513243f27",
+    #     "version": "0.25.7"
+    #   },
+    #   {
+    #     "accessible_peers_count": 1,
+    #     "approval_required": false,
+    #     "connected": true,
+    #     "dns_label": "docker-manager.netbird.cloud",
+    #     "groups": [
+    #       {
+    #         "id": "cmsmmlafic3c73cd78kg",
+    #         "name": "All",
+    #         "peers_count": 2
+    #       }
+    #     ],
+    #     "hostname": "docker-manager",
+    #     "id": "cmucvpafic3c73dsbq30",
+    #     "ip": "100.126.180.28",
+    #     "last_login": "2024-02-02T11:20:05.934889112Z",
+    #     "last_seen": "2024-02-16T16:14:35.853243309Z",
+    #     "login_expiration_enabled": false,
+    #     "login_expired": false,
+    #     "name": "docker-manager",
+    #     "os": "Alpine Linux 3.19.1",
+    #     "ssh_enabled": false,
+    #     "ui_version": "",
+    #     "user_id": "",
+    #     "version": "0.25.5"
+    #   }
+    # ]
+
     def __init__(self, name, id, data):
         self.name = name
         self.id = id
