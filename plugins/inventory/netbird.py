@@ -60,6 +60,10 @@ DOCUMENTATION = r"""
         description: Whether or not to create composed groups based on the variables of the hosts
         type: boolean
         default: false
+    disconnected:
+        description: Whether or not to include disconnected peers in the inventory
+        type: boolean
+        default: false
 """
 
 EXAMPLES = r"""
@@ -101,7 +105,10 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _get_peer_inventory(self):
         """Get the inventory from the Netbird API"""
-        self.peers = self.client.ListPeers()
+        if self.disconnected is False:
+            self.peers = [peer for peer in self.client.ListPeers() if peer.data["connected"] is True]
+        else:
+            self.peers = self.client.ListPeers()
 
     def parse(self, inventory, loader, path, cache=True):
         """Dynamically parse the inventory from the Netbird API"""
@@ -110,6 +117,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             raise AnsibleError("the Netbird Dynamic inventory requires Requests.")
 
         self.peers = None
+        self.disconnected = self.get_option('disconnected')
 
         self._read_config_data(path)
         cache_key = self.get_cache_key(path)
