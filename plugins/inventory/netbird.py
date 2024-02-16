@@ -23,19 +23,6 @@ DOCUMENTATION = r"""
         description: Cache plugin output to a file
         type: boolean
         default: true
-    cache_plugin:
-        description: Cache plugin to use for the inventory's cache
-        type: string
-        default: jsonfile
-        choices: ['memory', 'jsonfile', 'yaml', 'together', 'redis']
-    cache_connectoin:
-        description: Connection information for the cache plugin
-        type: string
-        default: None
-    cache_prefix:
-        description: Prefix to use for cache plugin files/tables
-        type: string
-        default: ANSIBLE_
     plugin:
         description: Marks this as an instance of the 'netbird' plugin.
         required: true
@@ -52,14 +39,6 @@ DOCUMENTATION = r"""
       type: string
       env:
         - name: NETBIRD_API_URL
-    strict:
-        description: If true make invalid entries a fatal error, otherwise skip and continue
-        type: boolean
-        default: false
-    compose:
-        description: Whether or not to create composed groups based on the variables of the hosts
-        type: boolean
-        default: false
     disconnected:
         description: Whether or not to include disconnected peers in the inventory
         type: boolean
@@ -110,6 +89,15 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         else:
             self.peers = self.client.ListPeers()
 
+    def _filter_by_config(self):
+        """Filter instances by user specified configuration."""
+        groups = self.get_option('groups')
+        if groups:
+            self.peers = [
+                peer for peer in self.peers
+                if any(group in peer.groups for group in groups)
+            ]
+
     def parse(self, inventory, loader, path, cache=True):
         """Dynamically parse the inventory from the Netbird API"""
         super(InventoryModule, self).parse(inventory, loader, path)
@@ -133,7 +121,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
         # Check for None rather than False in order to allow
         # for empty sets of cached instances
-        if self.instances is None:
+        if self.peers is None:
             self._build_client(loader)
             self._get_peer_inventory()
 
@@ -143,30 +131,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         self.populate()
 
     def populate(self):
-        strict = self.get_option('strict')
-
         self._filter_by_config()
-
-        self._add_groups()
-        self._add_instances_to_groups()
-        self._add_hostvars_for_instances()
-        for peer in self.peers:
-            variables = self.inventory.get_host(peer.label).get_vars()
-            self._add_host_to_composed_groups(
-                self.get_option('groups'),
-                variables,
-                peer.label,
-                strict=strict)
-            self._add_host_to_keyed_groups(
-                self.get_option('keyed_groups'),
-                variables,
-                peer.label,
-                strict=strict)
-            self._set_composite_vars(
-                self.get_option('compose'),
-                variables,
-                peer.label,
-                strict=strict)
 
 
 # This is a very limited wrapper for the netbird API.
