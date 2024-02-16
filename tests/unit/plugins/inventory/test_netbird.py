@@ -25,7 +25,7 @@ def inventory():
 
 def test_missing_access_token_lookup(inventory):
     loader = DataLoader()
-    inventory._options = {'api_key': None}
+    inventory._options = {'api_key': None, 'api_url': None}
     with pytest.raises(AnsibleError) as error_message:
         inventory._build_client(loader)
         assert 'Could not retrieve Netbird access token' in error_message

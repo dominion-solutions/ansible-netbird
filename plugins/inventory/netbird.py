@@ -6,6 +6,7 @@
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import (absolute_import, division, print_function)
+
 __metaclass__ = type
 
 DOCUMENTATION = r"""
@@ -66,17 +67,19 @@ DOCUMENTATION = r"""
 
 EXAMPLES = r"""
 """
+
 from ansible.errors import AnsibleError
-# TODO: Re-enable if necessary
-# , AnsibleParserError
-from ansible.utils.display import Display
+
 from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable
 
 # Specific for the NetbirdAPI Class
-import requests
+try:
+    import requests
 # import json
-
-display = Display()
+except ImportError:
+    HAS_NETBIRD_API_LIBS = False
+else:
+    HAS_NETBIRD_API_LIBS = True
 
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
@@ -85,19 +88,19 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     def _build_client(self, loader):
         """Build the Netbird API Client"""
 
-        access_token = self.get_option('api_key')
+        api_key = self.get_option('api_key')
         api_url = self.get_option('api_url')
         if self.templar.is_template(access_token):
             access_token = self.templar.template(access_token)
         if self.templar.is_template(api_url):
             api_url = self.templar.template(api_url)
 
-        if access_token is None:
+        if api_key is None:
             raise AnsibleError("Could not retrieve the Netbird API Key from the configuration sources.")
         if api_url is None:
             raise AnsibleError("Could not retrieve the Netbird API URL from the configuration sources.")
 
-        self.client = NetbirdApi(access_token, api_url)
+        self.client = NetbirdApi(api_key, api_url)
 
     def _get_peer_inventory(self):
         """Get the inventory from the Netbird API"""
@@ -106,6 +109,9 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     def parse(self, inventory, loader, path, cache=True):
         """Dynamically parse the inventory from the Netbird API"""
         super(InventoryModule, self).parse(inventory, loader, path)
+        if not HAS_NETBIRD_API_LIBS:
+            raise AnsibleError("the Netbird Dynamic inventory requires Requests.")
+
         self.peers = None
 
         self._read_config_data(path)

@@ -193,5 +193,3 @@ pip-selfcheck.json
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
 
 # End of https://www.toptal.com/developers/gitignore/api/ansible,python,venv,virtualenv
-
-!test/lib/ansible_test/data/requirements/
