@@ -24,4 +24,4 @@ jobs:
       - name: Run Ansible Unit Tests
         run: |
           cd ansible_collections/dominion_solutions/netbird
-          ansible-playbook tests/unit_tests.yml
+          ansible-test units
