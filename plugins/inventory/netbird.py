@@ -82,7 +82,6 @@ else:
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     NAME = "dominion_solutions.netbird"
 
-
     def _build_client(self, loader):
         """Build the Netbird API Client"""
 
@@ -186,7 +185,6 @@ class NetbirdApi:
             current_peer = Peer(current_peer_map["hostname"], current_peer_map["id"], current_peer_map)
             peers.append(current_peer)
         return peers
-
 
 
 class Peer:
