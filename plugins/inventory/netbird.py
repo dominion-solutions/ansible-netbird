@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 # Copyright: (c) 2024, Dominion Solutions LLC (https://dominion.solutions) <sales@dominion.solutions>
-# This code is licensed under the MIT License (see LICENSE or https://spdx.org/licenses/MIT.html)
-
-# This code uses code that is licensed under the GPL-V3 License as well
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import (absolute_import, division, print_function)
