@@ -90,8 +90,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
         api_key = self.get_option('api_key')
         api_url = self.get_option('api_url')
-        if self.templar.is_template(access_token):
-            access_token = self.templar.template(access_token)
+        if self.templar.is_template(api_key):
+            api_key = self.templar.template(api_key)
         if self.templar.is_template(api_url):
             api_url = self.templar.template(api_url)
 
