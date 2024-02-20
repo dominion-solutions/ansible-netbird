@@ -3,22 +3,21 @@
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import (absolute_import, division, print_function)
-
 __metaclass__ = type
 
-DOCUMENTATION = r"""
-  name: netbird
-  author: Mark J. Horninger (@spam-n-eggs)
-  version_added: "0.0.2"
-  requirements:
+DOCUMENTATION = r'''
+name: netbird
+author: Mark J. Horninger (@spam-n-eggs)
+version_added: 0.0.2
+requirements:
     - requests>=2.31.0
-  short_description: Get inventory from the Netbird API
-  description:
+short_description: Get inventory from the Netbird API
+description:
     - Get inventory from the Netbird API.  Allows for filtering based on Netbird Tags / Groups.
-  extends_documentation_fragment:
+extends_documentation_fragment:
     - constructed
     - inventory_cache
-  options:
+options:
     cache:
         description: Cache plugin output to a file
         type: boolean
@@ -28,22 +27,22 @@ DOCUMENTATION = r"""
         required: true
         choices: ['netbird', 'dominion_solutions.netbird']
     api_key:
-      description: The API Key for the Netbird API.
-      required: true
-      type: string
-      env:
+        description: The API Key for the Netbird API.
+        required: true
+        type: string
+        env:
         - name: NETBIRD_API_KEY
     api_url:
-      description: The URL for the Netbird API.
-      required: true
-      type: string
-      env:
+        description: The URL for the Netbird API.
+        required: true
+        type: string
+        env:
         - name: NETBIRD_API_URL
-    disconnected:
+    include_disconnected:
         description: Whether or not to include disconnected peers in the inventory
         type: boolean
         default: false
-"""
+'''
 
 EXAMPLES = r"""
 """
@@ -51,9 +50,11 @@ EXAMPLES = r"""
 from ansible.errors import AnsibleError
 
 from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cacheable
+from ansible.utils.display import Display
 
 # Specific for the NetbirdAPI Class
 import json
+
 try:
     import requests
 except ImportError:
@@ -61,13 +62,19 @@ except ImportError:
 else:
     HAS_NETBIRD_API_LIBS = True
 
+display = Display()
+
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     NAME = "dominion_solutions.netbird"
 
+    _redirected_names = ["netbird", "dominion_solutions.netbird"]
+
+    _load_name = NAME
+
     def _build_client(self, loader):
         """Build the Netbird API Client"""
-
+        display.v("Building the Netbird API Client.")
         api_key = self.get_option('api_key')
         api_url = self.get_option('api_url')
         if self.templar.is_template(api_key):
@@ -80,13 +87,17 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         if api_url is None:
             raise AnsibleError("Could not retrieve the Netbird API URL from the configuration sources.")
 
+        display.v(f"Set up the Netbird API Client with the URL: {api_url}")
         self.client = NetbirdApi(api_key, api_url)
 
     def _get_peer_inventory(self):
         """Get the inventory from the Netbird API"""
-        if self.disconnected is False:
+        self.display.v("Getting the inventory from the Netbird API.")
+        if self.include_disconnected is False:
+            self.display.vv("Filtering out disconnected peers.")
             self.peers = [peer for peer in self.client.ListPeers() if peer.data["connected"] is True]
         else:
+            display.vv("Including disconnected peers.")
             self.peers = self.client.ListPeers()
 
     def _filter_by_config(self):
@@ -98,16 +109,23 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 if any(group in peer.groups for group in groups)
             ]
 
+    def verify_file(self, path):
+        """Verify the Linode configuration file."""
+        if super(InventoryModule, self).verify_file(path):
+            endings = ('netbird.yaml', 'netbird.yml')
+            if any((path.endswith(ending) for ending in endings)):
+                return True
+        return False
+
     def parse(self, inventory, loader, path, cache=True):
         """Dynamically parse the inventory from the Netbird API"""
         super(InventoryModule, self).parse(inventory, loader, path)
         if not HAS_NETBIRD_API_LIBS:
             raise AnsibleError("the Netbird Dynamic inventory requires Requests.")
 
+        self._options = self._read_config_data(path)
         self.peers = None
-        self.disconnected = self.get_option('disconnected')
 
-        self._read_config_data(path)
         cache_key = self.get_cache_key(path)
 
         if cache:
@@ -122,6 +140,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         # Check for None rather than False in order to allow
         # for empty sets of cached instances
         if self.peers is None:
+            self.include_disconnected = self.get_option('include_disconnected')
             self._build_client(loader)
             self._get_peer_inventory()
 
