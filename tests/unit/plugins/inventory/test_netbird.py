@@ -15,9 +15,11 @@ from ansible.errors import AnsibleError
 from ansible.parsing.dataloader import DataLoader
 from ansible.template import Templar
 from ansible_collections.dominion_solutions.netbird.plugins.inventory.netbird import InventoryModule, NetbirdApi, Peer
+from ansible.utils.display import Display
 from unittest.mock import MagicMock
 import json
 
+display = Display()
 
 @pytest.fixture(scope="module")
 def inventory():
@@ -64,4 +66,5 @@ def test_get_peer_data(inventory, netbird_api):
     inventory._build_client = MagicMock()
     inventory.client = netbird_api
     inventory.parse(dict(), loader, path, False)
-    assert inventory.peers is not None
+    assert inventory.inventory is not None
+    raise AnsibleError(inventory.inventory)

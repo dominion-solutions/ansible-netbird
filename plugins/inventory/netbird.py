@@ -26,6 +26,13 @@ options:
         description: Marks this as an instance of the 'netbird' plugin.
         required: true
         choices: ['netbird', 'dominion_solutions.netbird']
+    ip_style:
+        description: Populate hostvars with all information available from the Netbird API.
+        type: string
+        default: plain
+        choices:
+            - plain
+            - api
     api_key:
         description: The API Key for the Netbird API.
         required: true
@@ -90,24 +97,65 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         display.v(f"Set up the Netbird API Client with the URL: {api_url}")
         self.client = NetbirdApi(api_key, api_url)
 
+    def _add_groups(self):
+        """ Add peer groups to the inventory. """
+        self.netbird_groups = set(
+            filter(None, [
+                peer.data.get("groups")
+                for peer
+                in self.peers
+            ])
+        )
+        for group in self.netbird_groups:
+            self.inventory.add_group(group)
+
+    def _add_peers_to_group(self):
+        """ Add peers to the groups in the inventory. """
+        for peer in self.peers:
+            for group in peer.data.get("groups"):
+                self.inventory.add_host(peer.name, group=group)
+
     def _get_peer_inventory(self):
         """Get the inventory from the Netbird API"""
-        self.display.v("Getting the inventory from the Netbird API.")
         if self.include_disconnected is False:
-            self.display.vv("Filtering out disconnected peers.")
             self.peers = [peer for peer in self.client.ListPeers() if peer.data["connected"] is True]
         else:
             display.vv("Including disconnected peers.")
             self.peers = self.client.ListPeers()
 
     def _filter_by_config(self):
-        """Filter instances by user specified configuration."""
+        """Filter peers by user specified configuration."""
         groups = self.get_option('groups')
         if groups:
             self.peers = [
                 peer for peer in self.peers
-                if any(group in peer.groups for group in groups)
+                if any(group in peer.data['groups'] for group in groups)
             ]
+
+    def _add_hostvars_for_peers(self):
+        """Add hostvars for peers in the dynamic inventory."""
+        ip_style = self.get_option('ip_style')
+        for peer in self.peers:
+            hostvars = peer._raw_json
+            for hostvar_key in hostvars:
+                if ip_style == 'api' and hostvar_key in ['ip', 'ipv6']:
+                    continue
+                self.inventory.set_variable(
+                    peer.name,
+                    hostvar_key,
+                    hostvars[hostvar_key]
+                )
+            if ip_style == 'api':
+                ips = peer.ips.ipv4.public + peer.ips.ipv4.private
+                ips += [peer.ips.ipv6.slaac, peer.ips.ipv6.link_local]
+                ips += peer.ips.ipv6.pools
+
+                for ip_type in set(ip.type for ip in ips):
+                    self.inventory.set_variable(
+                        peer.label,
+                        ip_type,
+                        self._ip_data([ip for ip in ips if ip.type == ip_type])
+                    )
 
     def verify_file(self, path):
         """Verify the Linode configuration file."""
@@ -138,11 +186,13 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 update_cache = True
 
         # Check for None rather than False in order to allow
-        # for empty sets of cached instances
+        # for empty sets of cached peers
         if self.peers is None:
             self.include_disconnected = self.get_option('include_disconnected')
             self._build_client(loader)
             self._get_peer_inventory()
+            self._add_hostvars_for_peers()
+
 
         if update_cache:
             self._cache[cache_key] = self._cacheable_inventory()
@@ -151,6 +201,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def populate(self):
         self._filter_by_config()
+        self._add_groups()
+        self._add_peers_to_group()
 
 
 # This is a very limited wrapper for the netbird API.
@@ -235,6 +287,9 @@ class Peer:
     #     "version": "0.25.5"
     #   }
     # ]
+    @property
+    def _raw_json(self):
+        return self.data
 
     def __init__(self, name, id, data):
         self.name = name
