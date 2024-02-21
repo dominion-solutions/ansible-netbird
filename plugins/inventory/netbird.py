@@ -193,7 +193,6 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             self._get_peer_inventory()
             self._add_hostvars_for_peers()
 
-
         if update_cache:
             self._cache[cache_key] = self._cacheable_inventory()
 

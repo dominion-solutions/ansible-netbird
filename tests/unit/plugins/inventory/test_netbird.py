@@ -21,6 +21,7 @@ import json
 
 display = Display()
 
+
 @pytest.fixture(scope="module")
 def inventory():
     plugin = InventoryModule()
