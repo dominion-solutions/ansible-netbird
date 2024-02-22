@@ -60,7 +60,7 @@ from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cachea
 from ansible.utils.display import Display
 
 # Specific for the NetbirdAPI Class
-import json
+import json, jsonpickle
 
 try:
     import requests
@@ -74,9 +74,6 @@ display = Display()
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     NAME = "dominion_solutions.netbird"
-
-    _redirected_names = ["netbird", "dominion_solutions.netbird"]
-
     _load_name = NAME
 
     def _build_client(self, loader):
@@ -100,11 +97,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     def _add_groups(self):
         """ Add peer groups to the inventory. """
         self.netbird_groups = set(
-            filter(None, [
-                peer.data.get("groups")
-                for peer
-                in self.peers
-            ])
+            filter(None,
+                [group[0].get('name') for group in [item.data.get('groups') for l in self.peers for item in self.peers]])
         )
         for group in self.netbird_groups:
             self.inventory.add_group(group)
@@ -113,7 +107,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         """ Add peers to the groups in the inventory. """
         for peer in self.peers:
             for group in peer.data.get("groups"):
-                self.inventory.add_host(peer.name, group=group)
+                self.inventory.add_host(peer.label, group=group.get('name'))
 
     def _get_peer_inventory(self):
         """Get the inventory from the Netbird API"""
@@ -128,8 +122,15 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         groups = self.get_option('groups')
         if groups:
             self.peers = [
+                # 202410221-MJH:  This list comprehension that  filters the peers is a little hard to read.  I'm sorry.
                 peer for peer in self.peers
-                if any(group in peer.data['groups'] for group in groups)
+                if any(
+                    group
+                    in [
+                        # Emulate a pluck here to grab the group names from the peer data.
+                        g.get('name') for g in peer.data.get('groups')
+                    ]
+                    for group in groups)
             ]
 
     def _add_hostvars_for_peers(self):
@@ -141,7 +142,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 if ip_style == 'api' and hostvar_key in ['ip', 'ipv6']:
                     continue
                 self.inventory.set_variable(
-                    peer.name,
+                    peer.label,
                     hostvar_key,
                     hostvars[hostvar_key]
                 )
@@ -191,7 +192,6 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             self.include_disconnected = self.get_option('include_disconnected')
             self._build_client(loader)
             self._get_peer_inventory()
-            self._add_hostvars_for_peers()
 
         if update_cache:
             self._cache[cache_key] = self._cacheable_inventory()
@@ -199,9 +199,32 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         self.populate()
 
     def populate(self):
+        """ Populate the inventory with the peers from the Netbird API. """
+        strict = self.get_option('strict')
+
         self._filter_by_config()
+
         self._add_groups()
         self._add_peers_to_group()
+        self._add_hostvars_for_peers()
+        for peer in self.peers:
+            variables = self.inventory.get_host(peer.label).get_vars()
+            self._add_host_to_composed_groups(
+                self.get_option('groups'),
+                variables,
+                peer.label,
+                strict=strict)
+            self._add_host_to_keyed_groups(
+                self.get_option('keyed_groups'),
+                variables,
+                peer.label,
+                strict=strict)
+            self._set_composite_vars(
+                self.get_option('compose'),
+                variables,
+                peer.label,
+                strict=strict)
+        raise AnsibleError(f"self.inventory: {jsonpickle.encode(self.inventory)}")
 
 
 # This is a very limited wrapper for the netbird API.
@@ -225,7 +248,7 @@ class NetbirdApi:
         response = requests.request("GET", url, headers=headers)
         peer_json = json.loads(response.text)
         for current_peer_map in peer_json:
-            current_peer = Peer(current_peer_map["hostname"], current_peer_map["id"], current_peer_map)
+            current_peer = Peer(current_peer_map["hostname"], current_peer_map['dns_label'], current_peer_map["id"], current_peer_map)
             peers.append(current_peer)
         return peers
 
@@ -290,7 +313,8 @@ class Peer:
     def _raw_json(self):
         return self.data
 
-    def __init__(self, name, id, data):
+    def __init__(self, name, label, id, data):
         self.name = name
+        self.label = label
         self.id = id
         self.data = data

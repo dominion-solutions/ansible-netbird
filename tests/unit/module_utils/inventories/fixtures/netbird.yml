@@ -1,0 +1,8 @@
+---
+plugin: dominion_solutions.netbird
+api_key: nbp_1234567890123456789012345678901234567
+api_url: https://netbird.example.com/api/v1
+include_disconnected: Yes
+ip_style: plain
+groups:
+- "All"

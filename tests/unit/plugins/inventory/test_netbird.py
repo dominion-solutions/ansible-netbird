@@ -20,7 +20,7 @@ from ansible.utils.display import Display
 from ansible_collections.dominion_solutions.netbird.plugins.inventory.netbird import InventoryModule, NetbirdApi, Peer
 
 from unittest.mock import MagicMock
-import json
+import json,jsonpickle
 
 display = Display()
 
@@ -41,7 +41,7 @@ def netbird_api():
     with open('tests/unit/module_utils/inventories/fixtures/peers.json') as peers_file:
         peers_map = json.load(peers_file)
         for data in peers_map:
-            response_data.append(Peer(data['hostname'], data['id'], data))
+            response_data.append(Peer(data['hostname'], data['dns_label'], data['id'], data))
 
     mock_netbird_api.ListPeers = MagicMock(return_value=response_data)
 
@@ -73,4 +73,5 @@ def test_get_peer_data(inventory, netbird_api):
     inventory.client = netbird_api
     inventory.parse(InventoryData(), loader, path, False)
     assert inventory.inventory is not None
-    raise AnsibleError(inventory.inventory)
+    assert inventory.inventory.hosts is not None
+    assert len(inventory.inventory.hosts) == 1
