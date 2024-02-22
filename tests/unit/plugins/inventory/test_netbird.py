@@ -20,7 +20,8 @@ from ansible.utils.display import Display
 from ansible_collections.dominion_solutions.netbird.plugins.inventory.netbird import InventoryModule, NetbirdApi, Peer
 
 from unittest.mock import MagicMock
-import json,jsonpickle
+import json
+# import jsonpickle
 
 display = Display()
 

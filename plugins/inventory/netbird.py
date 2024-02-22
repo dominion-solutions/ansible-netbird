@@ -45,10 +45,22 @@ options:
         type: string
         env:
         - name: NETBIRD_API_URL
-    include_disconnected:
-        description: Whether or not to include disconnected peers in the inventory
+    netbird_groups:
+        description: A list of Netbird groups to filter the inventory by.
+        type: list
+        required: False
+        elements: string
+    strict:
+        description: Whether or not to fail if a group or variable is not found.
+    compose:
+        description: compose variables for Ansible based on jinja2 expression and inventory vars
+        default: False
+        required: False
         type: boolean
-        default: false
+    keyed_groups:
+        description: create groups for plugins based on variable values and add the corresponding hosts to it
+        type: list
+        required: False
 '''
 
 EXAMPLES = r"""
@@ -60,10 +72,11 @@ from ansible.plugins.inventory import BaseInventoryPlugin, Constructable, Cachea
 from ansible.utils.display import Display
 
 # Specific for the NetbirdAPI Class
-import json, jsonpickle
+import json
 
 try:
     import requests
+    import jsonpickle
 except ImportError:
     HAS_NETBIRD_API_LIBS = False
 else:
@@ -97,9 +110,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     def _add_groups(self):
         """ Add peer groups to the inventory. """
         self.netbird_groups = set(
-            filter(None,
-                [group[0].get('name') for group in [item.data.get('groups') for l in self.peers for item in self.peers]])
-        )
+            filter(None, [group[0].get('name') for group in [item.data.get('groups') for l in self.peers for item in self.peers]]))
         for group in self.netbird_groups:
             self.inventory.add_group(group)
 
@@ -111,15 +122,11 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _get_peer_inventory(self):
         """Get the inventory from the Netbird API"""
-        if self.include_disconnected is False:
-            self.peers = [peer for peer in self.client.ListPeers() if peer.data["connected"] is True]
-        else:
-            display.vv("Including disconnected peers.")
-            self.peers = self.client.ListPeers()
+        self.peers = self.client.ListPeers()
 
     def _filter_by_config(self):
         """Filter peers by user specified configuration."""
-        groups = self.get_option('groups')
+        groups = self.get_option('netbird_groups')
         if groups:
             self.peers = [
                 # 202410221-MJH:  This list comprehension that  filters the peers is a little hard to read.  I'm sorry.
@@ -189,7 +196,6 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         # Check for None rather than False in order to allow
         # for empty sets of cached peers
         if self.peers is None:
-            self.include_disconnected = self.get_option('include_disconnected')
             self._build_client(loader)
             self._get_peer_inventory()
 
@@ -207,6 +213,11 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         self._add_groups()
         self._add_peers_to_group()
         self._add_hostvars_for_peers()
+
+        groups = self.get_option('groups')
+        for group_name in groups:
+            conditional = "{%% if %s %%} True {%% else %%} False {%% endif %%}" % groups[group_name]
+
         for peer in self.peers:
             variables = self.inventory.get_host(peer.label).get_vars()
             self._add_host_to_composed_groups(
@@ -214,17 +225,17 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 variables,
                 peer.label,
                 strict=strict)
-            self._add_host_to_keyed_groups(
-                self.get_option('keyed_groups'),
-                variables,
-                peer.label,
-                strict=strict)
-            self._set_composite_vars(
-                self.get_option('compose'),
-                variables,
-                peer.label,
-                strict=strict)
-        raise AnsibleError(f"self.inventory: {jsonpickle.encode(self.inventory)}")
+        raise AnsibleError(f"self.inventory:\n {jsonpickle.encode(self.inventory,indent=True)}")
+        # self._add_host_to_keyed_groups(
+        #     self.get_option('keyed_groups'),
+        #     variables,
+        #     peer.label,
+        #     strict=strict)
+        # self._set_composite_vars(
+        #     self.get_option('compose'),
+        #     variables,
+        #     peer.label,
+        #     strict=strict)
 
 
 # This is a very limited wrapper for the netbird API.

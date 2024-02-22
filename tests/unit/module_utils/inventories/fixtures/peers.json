@@ -1,30 +1,30 @@
 [
-    {
-        "accessible_peers_count": 1,
-        "approval_required": false,
-        "connected": false,
-        "dns_label": "apple.netbird.cloud",
-        "groups": [
-            {
-                "id": "2a3b4c5d6e7f8g9h0i1j",
-                "name": "All",
-                "peers_count": 2
-            }
-        ],
-        "hostname": "apple",
-        "id": "3a7b2c1d4e5f6g8h9i0j",
-        "ip": "100.0.0.42",
-        "last_login": "2024-02-10T22:01:27.744131502Z",
-        "last_seen": "2024-02-11T03:21:42.202104672Z",
-        "login_expiration_enabled": true,
-        "login_expired": false,
-        "name": "apple",
-        "os": "Linux Mint 21.3",
-        "ssh_enabled": false,
-        "ui_version": "netbird-desktop-ui/0.25.7",
-        "user_id": "auth0|ABC123xyz4567890",
-        "version": "0.25.7"
-    },
+        {
+            "accessible_peers_count": 1,
+            "approval_required": false,
+            "connected": false,
+            "dns_label": "apple.netbird.cloud",
+            "groups": [
+                {
+                    "id": "2a3b4c5d6e7f8g9h0i1j",
+                    "name": "All",
+                    "peers_count": 2
+                }
+            ],
+            "hostname": "apple",
+            "id": "3a7b2c1d4e5f6g8h9i0j",
+            "ip": "100.0.0.42",
+            "last_login": "2024-02-10T22:01:27.744131502Z",
+            "last_seen": "2024-02-11T03:21:42.202104672Z",
+            "login_expiration_enabled": true,
+            "login_expired": false,
+            "name": "apple",
+            "os": "Linux Mint 21.3",
+            "ssh_enabled": false,
+            "ui_version": "netbird-desktop-ui/0.25.7",
+            "user_id": "auth0|ABC123xyz4567890",
+            "version": "0.25.7"
+        },
     {
         "accessible_peers_count": 1,
         "approval_required": false,
@@ -46,7 +46,7 @@
         "login_expired": false,
         "name": "banana",
         "os": "Alpine Linux 3.19.1",
-        "ssh_enabled": false,
+        "ssh_enabled": true,
         "ui_version": "",
         "user_id": "",
         "version": "0.25.5"
