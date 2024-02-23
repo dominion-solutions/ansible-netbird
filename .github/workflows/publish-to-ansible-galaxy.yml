@@ -1,8 +1,7 @@
 name: publish-to-ansible-galaxy
 on:
-  push:
-    branches:
-      - main
+  release:
+    types: [published]
 jobs:
   ansible-publish:
     runs-on: ubuntu-latest
