@@ -9,10 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
     - name: Update version
       run: |
         echo "Updating version"
-        sed -i "s/version: .*/version: ${{ github.event.release.tag_name }}/g" dominion_solutions/netbird/galaxy.yml
+        sed -i "s/version: .*/version: ${{ github.event.release.tag_name }}/g" galaxy.yml
     - uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: "Update version to ${{ github.event.release.tag_name }}"
@@ -27,4 +28,4 @@ jobs:
       with:
         api_key: ${{ secrets.ANSIBLE_GALAXY_API_KEY }}
         api_server: https://galaxy.ansible.com/api/
-        src_path: /github/workspace/dominion_solutions/netbird
+        src_path: .
