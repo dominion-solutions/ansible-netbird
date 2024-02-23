@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# netbird inventory Ansible plugin
 # Copyright: (c) 2024, Dominion Solutions LLC (https://dominion.solutions) <sales@dominion.solutions>
 # GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -50,6 +51,10 @@ options:
         type: list
         required: False
         elements: string
+    netbird_connected:
+        description: Filter the inventory by connected peers.
+        default: True
+        type: boolean
     strict:
         description: Whether or not to fail if a group or variable is not found.
     compose:
@@ -64,6 +69,21 @@ options:
 '''
 
 EXAMPLES = r"""
+# This is an inventory that finds the All Group and creates groups for the connected and ssh_enabled peers.
+---
+plugin: dominion_solutions.netbird
+api_key: << api_key >>
+api_url: << api_url >>
+netbird_groups:
+- "All"
+groups:
+  connected: connected
+  ssh_hosts: ssh_enabled
+strict: No
+compose:
+  ansible_ssh_host: label
+  ansible_ssh_port: 22
+
 """
 
 from ansible.errors import AnsibleError
@@ -76,7 +96,6 @@ import json
 
 try:
     import requests
-    import jsonpickle
 except ImportError:
     HAS_NETBIRD_API_LIBS = False
 else:
@@ -126,10 +145,16 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _filter_by_config(self):
         """Filter peers by user specified configuration."""
+        connected = self.get_option('netbird_connected')
         groups = self.get_option('netbird_groups')
+        if connected:
+            self.peers = [
+                peer for peer in self.peers if peer.data.get('connected')
+            ]
         if groups:
             self.peers = [
-                # 202410221-MJH:  This list comprehension that  filters the peers is a little hard to read.  I'm sorry.
+                # 202410221 MJH:  This list comprehension that  filters the peers is a little hard to read.  I'm sorry.
+                # If you can fix it and make it more readable, please feel free to make a PR.
                 peer for peer in self.peers
                 if any(
                     group
@@ -214,10 +239,6 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         self._add_peers_to_group()
         self._add_hostvars_for_peers()
 
-        groups = self.get_option('groups')
-        for group_name in groups:
-            conditional = "{%% if %s %%} True {%% else %%} False {%% endif %%}" % groups[group_name]
-
         for peer in self.peers:
             variables = self.inventory.get_host(peer.label).get_vars()
             self._add_host_to_composed_groups(
@@ -225,17 +246,18 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
                 variables,
                 peer.label,
                 strict=strict)
-        raise AnsibleError(f"self.inventory:\n {jsonpickle.encode(self.inventory,indent=True)}")
-        # self._add_host_to_keyed_groups(
-        #     self.get_option('keyed_groups'),
-        #     variables,
-        #     peer.label,
-        #     strict=strict)
-        # self._set_composite_vars(
-        #     self.get_option('compose'),
-        #     variables,
-        #     peer.label,
-        #     strict=strict)
+
+            self._add_host_to_keyed_groups(
+                self.get_option('keyed_groups'),
+                variables,
+                peer.label,
+                strict=strict)
+
+            self._set_composite_vars(
+                self.get_option('compose'),
+                variables,
+                peer.label,
+                strict=strict)
 
 
 # This is a very limited wrapper for the netbird API.

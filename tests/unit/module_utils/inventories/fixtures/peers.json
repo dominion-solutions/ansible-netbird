@@ -20,7 +20,7 @@
             "login_expired": false,
             "name": "apple",
             "os": "Linux Mint 21.3",
-            "ssh_enabled": false,
+            "ssh_enabled": true,
             "ui_version": "netbird-desktop-ui/0.25.7",
             "user_id": "auth0|ABC123xyz4567890",
             "version": "0.25.7"

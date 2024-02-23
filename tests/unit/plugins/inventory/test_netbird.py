@@ -7,10 +7,6 @@ __metaclass__ = type
 
 import pytest
 
-
-# TODO: Reenable this if needed.
-# import sys
-
 from ansible.errors import AnsibleError
 from ansible.inventory.data import InventoryData
 from ansible.parsing.dataloader import DataLoader
@@ -21,7 +17,6 @@ from ansible_collections.dominion_solutions.netbird.plugins.inventory.netbird im
 
 from unittest.mock import MagicMock
 import json
-# import jsonpickle
 
 display = Display()
 
@@ -75,4 +70,17 @@ def test_get_peer_data(inventory, netbird_api):
     inventory.parse(InventoryData(), loader, path, False)
     assert inventory.inventory is not None
     assert inventory.inventory.hosts is not None
+    assert len(inventory.inventory.groups.get('ssh_hosts').hosts) == 2
+    assert len(inventory.inventory.groups.get('connected').hosts) == 1
+
+
+def test_get_only_connected_peers(inventory, netbird_api):
+    loader = DataLoader()
+    path = 'tests/unit/module_utils/inventories/fixtures/only_connected.netbird.yml'
+    inventory._build_client = MagicMock()
+    inventory.client = netbird_api
+    inventory.parse(InventoryData(), loader, path, False)
+    assert inventory.inventory is not None
+    assert inventory.inventory.hosts is not None
     assert len(inventory.inventory.hosts) == 1
+    assert list(inventory.inventory.hosts.values())[0].get_vars().get('connected') is True
