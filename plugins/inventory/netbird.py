@@ -26,7 +26,7 @@ options:
     plugin:
         description: Marks this as an instance of the 'netbird' plugin.
         required: true
-        choices: ['netbird', 'dominion_solutions.netbird']
+        choices: ['netbird', 'dominion_solutions.netbird.netbird']
     ip_style:
         description: Populate hostvars with all information available from the Netbird API.
         type: string
@@ -71,7 +71,7 @@ options:
 EXAMPLES = r"""
 # This is an inventory that finds the All Group and creates groups for the connected and ssh_enabled peers.
 ---
-plugin: dominion_solutions.netbird
+plugin: dominion_solutions.netbird.netbird
 api_key: << api_key >>
 api_url: << api_url >>
 netbird_groups:
@@ -105,7 +105,7 @@ display = Display()
 
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
-    NAME = "dominion_solutions.netbird"
+    NAME = "dominion_solutions.netbird.netbird"
     _load_name = NAME
 
     def _build_client(self, loader):
