@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## Securtity Vulnerability Fixes - 2024-02-24
+
+Fixes security vulnerabilities
+
+### What's Changed
+
+* Bump cryptography from 42.0.2 to 42.0.4 by @dependabot in https://github.com/dominion-solutions/ansible-netbird-role/pull/9
+* 'Fixed' Galaxy commit step by @spam-n-eggs in https://github.com/dominion-solutions/ansible-netbird-role/pull/10
+* updated the steps to the galaxy.yml update gets included. by @spam-n-eggs in https://github.com/dominion-solutions/ansible-netbird-role/pull/11
+
+### New Contributors
+
+* @dependabot made their first contribution in https://github.com/dominion-solutions/ansible-netbird-role/pull/9
+
+**Full Changelog**: https://github.com/dominion-solutions/ansible-netbird-role/compare/0.1.2...0.1.3
+
 ## Security Vulnerability Fixes - 2024-02-24
 
 Fixes security vulnerabilities
