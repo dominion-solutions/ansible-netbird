@@ -25,7 +25,7 @@ display = Display()
 def inventory():
     plugin = InventoryModule()
     plugin.templar = Templar(loader=DataLoader())
-    plugin._redirected_names = ["netbird", "dominion_solutions.netbird"]
+    plugin._redirected_names = ["netbird", "dominion_solutions.netbird.netbird"]
     plugin._load_name = plugin.NAME
     return plugin
 
@@ -35,6 +35,20 @@ def netbird_api():
     mock_netbird_api = NetbirdApi(None, None)
     response_data = []
     with open('tests/unit/module_utils/inventories/fixtures/peers.json') as peers_file:
+        peers_map = json.load(peers_file)
+        for data in peers_map:
+            response_data.append(Peer(data['hostname'], data['dns_label'], data['id'], data))
+
+    mock_netbird_api.ListPeers = MagicMock(return_value=response_data)
+
+    return mock_netbird_api
+
+
+@pytest.fixture(scope="module")
+def netbird_api_multigroup():
+    mock_netbird_api = NetbirdApi(None, None)
+    response_data = []
+    with open('tests/unit/module_utils/inventories/fixtures/peers_multigroup.json') as peers_file:
         peers_map = json.load(peers_file)
         for data in peers_map:
             response_data.append(Peer(data['hostname'], data['dns_label'], data['id'], data))
@@ -84,3 +98,16 @@ def test_get_only_connected_peers(inventory, netbird_api):
     assert inventory.inventory.hosts is not None
     assert len(inventory.inventory.hosts) == 1
     assert list(inventory.inventory.hosts.values())[0].get_vars().get('connected') is True
+
+
+def test_with_multiple_groups(inventory, netbird_api_multigroup):
+    loader = DataLoader()
+    path = 'tests/unit/module_utils/inventories/fixtures/only_connected.netbird.yml'
+    inventory._build_client = MagicMock()
+    inventory.client = netbird_api_multigroup
+    inventory.parse(InventoryData(), loader, path, False)
+    assert inventory.inventory is not None
+    assert inventory.inventory.hosts is not None
+    assert inventory.inventory.groups is not None
+    assert 'All' in inventory.inventory.groups
+    assert 'Development' in inventory.inventory.groups

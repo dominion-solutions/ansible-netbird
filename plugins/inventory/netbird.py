@@ -106,7 +106,9 @@ display = Display()
 
 class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     NAME = "dominion_solutions.netbird.netbird"
-    _load_name = NAME
+
+    def _cacheable_inventory(self):
+        return [p._raw_json for p in self.peers]
 
     def _build_client(self, loader):
         """Build the Netbird API Client"""
@@ -129,7 +131,12 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
     def _add_groups(self):
         """ Add peer groups to the inventory. """
         self.netbird_groups = set(
-            filter(None, [group[0].get('name') for group in [item.data.get('groups') for l in self.peers for item in self.peers]]))
+            filter(None, [
+                group.get('name') for peer
+                in self.peers
+                for group in
+                peer.data.get('groups')
+            ]))
         for group in self.netbird_groups:
             self.inventory.add_group(group)
 

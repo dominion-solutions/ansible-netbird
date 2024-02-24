@@ -1,0 +1,69 @@
+[
+    {
+      "accessible_peers_count": 1,
+      "approval_required": false,
+      "city_name": "",
+      "connected": false,
+      "connection_ip": "",
+      "country_code": "",
+      "dns_label": "apple.netbird.cloud",
+      "geoname_id": 0,
+      "groups": [
+        {
+          "id": "3aBcD4eF5gHiJ6kLmNoP",
+          "name": "All",
+          "peers_count": 2
+        }
+      ],
+      "hostname": "apple",
+      "id": "2j3k4l5m6n7o8p9q0r1",
+      "ip": "10.10.10.123",
+      "kernel_version": "",
+      "last_login": "2024-02-10T22:01:27.744131502Z",
+      "last_seen": "2024-02-11T03:21:42.202104672Z",
+      "login_expiration_enabled": true,
+      "login_expired": false,
+      "name": "apple",
+      "os": "Linux Mint 21.3",
+      "ssh_enabled": false,
+      "ui_version": "netbird-desktop-ui/0.25.7",
+      "user_id": "auth0|abc123xyz4567890defg",
+      "version": "0.25.7"
+    },
+    {
+      "accessible_peers_count": 1,
+      "approval_required": false,
+      "city_name": "New York",
+      "connected": true,
+      "connection_ip": "146.123.45.67",
+      "country_code": "US",
+      "dns_label": "banana.netbird.cloud",
+      "geoname_id": 1234567,
+      "groups": [
+        {
+          "id": "2j3k4l5m6n7o8p9q0r1",
+          "name": "Development",
+          "peers_count": 1
+        },
+        {
+          "id": "3aBcD4eF5gHiJ6kLmNoP",
+          "name": "All",
+          "peers_count": 2
+        }
+      ],
+      "hostname": "banana",
+      "id": "hkwJPXNUmGywCLo5S8Wg",
+      "ip": "10.10.10.124",
+      "kernel_version": "",
+      "last_login": "2024-02-02T11:20:05.934889112Z",
+      "last_seen": "2024-02-24T02:59:35.324496386Z",
+      "login_expiration_enabled": false,
+      "login_expired": false,
+      "name": "docker-manager",
+      "os": "Alpine Linux 3.19.1",
+      "ssh_enabled": false,
+      "ui_version": "",
+      "user_id": "",
+      "version": "0.25.5"
+    }
+  ]
