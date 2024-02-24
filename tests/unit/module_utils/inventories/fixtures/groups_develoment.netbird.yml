@@ -1,0 +1,11 @@
+---
+plugin: dominion_solutions.netbird.netbird
+api_url: https://api.netbird.io/api/
+api_key: nbp_this_is_a_fake_api_key
+netbird_groups:
+  - Development
+ip_style: plain
+groups:
+strict: No
+keyed_groups:
+compose:

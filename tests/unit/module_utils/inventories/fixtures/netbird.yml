@@ -1,6 +1,6 @@
 ---
-plugin: netbird
-api_key: nbp_1234567890123456789012345678901234567
+plugin: dominion_solutions.netbird.netbird
+api_key: nbp_this_is_a_fake_api_key
 api_url: https://netbird.example.com/api/v1
 ip_style: plain
 netbird_connected: False
