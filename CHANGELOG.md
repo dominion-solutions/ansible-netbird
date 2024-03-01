@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## Documentation updates - 2024-03-01
+
+Closes #16
+
+### What's Changed
+
+* Updated Readme in a big way. by @spam-n-eggs in https://github.com/dominion-solutions/ansible-netbird/pull/17
+
+**Full Changelog**: https://github.com/dominion-solutions/ansible-netbird/compare/0.1.3...0.1.4
+
 ## Securtity Vulnerability Fixes - 2024-02-24
 
 Fixes security vulnerabilities
