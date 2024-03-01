@@ -1,39 +1,39 @@
-# dominion_solutions.netbird
+dominion_solutions.netbird
+---
 This collection allows you to manage your netbird servers.
 
-- [dominion\_solutions.netbird](#dominion_solutionsnetbird)
-  - [Required Python Libraries](#required-python-libraries)
-  - [Roles](#roles)
-    - [dominion\_solutions.netbird.netbird](#dominion_solutionsnetbirdnetbird)
-  - [Inventories](#inventories)
-    - [dominion\_solutions.netbird.netbird](#dominion_solutionsnetbirdnetbird-1)
-      - [Sample Inventory Setups](#sample-inventory-setups)
-        - [Retrieve All Netbird Peers in the _Development_ group](#retrieve-all-netbird-peers-in-the-development-group)
-        - [Retrieve all Netbird Peers that _are Connected_](#retrieve-all-netbird-peers-that-are-connected)
-        - [A More Complex example](#a-more-complex-example)
-      - [Available data for custom groupings](#available-data-for-custom-groupings)
+- [Required Python Libraries](#required-python-libraries)
+- [Roles](#roles)
+  - [dominion\_solutions.netbird.netbird](#dominion_solutionsnetbirdnetbird)
+- [Inventories](#inventories)
+  - [dominion\_solutions.netbird.netbird](#dominion_solutionsnetbirdnetbird-1)
+    - [Sample Inventory Setups](#sample-inventory-setups)
+      - [Retrieve All Netbird Peers in the _Development_ group](#retrieve-all-netbird-peers-in-the-development-group)
+      - [Retrieve all Netbird Peers that _are Connected_](#retrieve-all-netbird-peers-that-are-connected)
+      - [A More Complex example](#a-more-complex-example)
+    - [Available data for custom groupings](#available-data-for-custom-groupings)
 - [Contributing](#contributing)
 - [Contributors](#contributors)
 
 
-## Required Python Libraries
+# Required Python Libraries
 - ansible ~=9.2.0
 - requests ~=2.31.0 (If using the inventory plugin)
 
-## Roles
-### dominion_solutions.netbird.netbird
+# Roles
+## dominion_solutions.netbird.netbird
 Applying this role will install the netbird client on the target machine.
 
 [Documentation](https://galaxy.ansible.com/ui/repo/published/dominion_solutions/netbird/content/role/netbird/)
 
-## Inventories
-### dominion_solutions.netbird.netbird
+# Inventories
+## dominion_solutions.netbird.netbird
 This is a dynamic inventory generated based on the configuration in the netbird API.
 
 [Documentation](https://galaxy.ansible.com/ui/repo/published/dominion_solutions/netbird/content/inventory/netbird/)
 
-#### Sample Inventory Setups
-##### Retrieve All Netbird Peers in the _Development_ group
+### Sample Inventory Setups
+#### Retrieve All Netbird Peers in the _Development_ group
 ```yaml
 ---
 plugin: dominion_solutions.netbird.netbird
@@ -44,7 +44,7 @@ netbird_groups:
 strict: No
 ```
 
-##### Retrieve all Netbird Peers that _are Connected_
+#### Retrieve all Netbird Peers that _are Connected_
 ```yaml
 ---
 plugin: dominion_solutions.netbird.netbird
@@ -53,7 +53,7 @@ api_url: https://netbird.example.com/api/v1
 netbird_connected: True
 ```
 
-##### A More Complex example
+#### A More Complex example
 This example gets all peers in the _All_ group and builds the additional _connected_ and _ssh\_hosts_ groups, based on the keys.
 ```yaml
 ---
@@ -73,7 +73,7 @@ compose:
   ansible_ssh_host: label
   ansible_ssh_port: 22
 ```
-#### Available data for custom groupings
+### Available data for custom groupings
 Fields are taken directly from the responses at the [Netbird Peers API](https://docs.netbird.io/api/resources/peers#list-all-peers) unless otherwise indicated
 
 | Field                     | Type      | Notes |
