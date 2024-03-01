@@ -12,6 +12,8 @@ This collection allows you to manage your netbird servers.
         - [Retrieve all Netbird Peers that _are Connected_](#retrieve-all-netbird-peers-that-are-connected)
         - [A More Complex example](#a-more-complex-example)
       - [Available data for custom groupings](#available-data-for-custom-groupings)
+- [Contributing](#contributing)
+- [Contributors](#contributors)
 
 
 ## Required Python Libraries
@@ -95,3 +97,10 @@ Fields are taken directly from the responses at the [Netbird Peers API](https://
 | last_login                | `string`  |       |
 | approval_required         | `boolean` |       |
 | accessible_peers_count    | `integer` |       |
+
+# Contributing
+Please see [CONTRIBUTING.md](https://github.com/dominion-solutions/ansible-netbird/blob/main/.github/CONTRIBUTING.md)
+
+# Contributors
+- [Mark J. Horninger](https://github.com/spam-n-eggs)
+- [All Contributors](https://github.com/dominion-solutions/ansible-netbird/graphs/contributors)
