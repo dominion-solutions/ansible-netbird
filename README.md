@@ -49,7 +49,7 @@ strict: No
 ---
 plugin: dominion_solutions.netbird.netbird
 api_key: nbp_this_is_a_fake_api_key
-api_url: https://netbird.example.com/api/v1
+api_url: https://netbird.example.com/api/
 netbird_connected: True
 ```
 
@@ -59,7 +59,7 @@ This example gets all peers in the _All_ group and builds the additional _connec
 ---
 plugin: dominion_solutions.netbird.netbird
 api_key: nbp_this_is_a_fake_api_key
-api_url: https://netbird.example.com/api/v1
+api_url: https://netbird.example.com/api/
 netbird_connected: False
 leading_separator: No
 netbird_groups:
