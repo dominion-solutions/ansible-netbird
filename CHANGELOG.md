@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## Small Bugfixes - 2024-03-11
+
+Minor fixes including:
+
+- #14 Error on bad credentials.
+- #22 Wrapped bad urls in an AnsibleError
+- #20 The issue templates were bad.
+
+### What's Changed
+
+* Mjh/14/error out on bad credentials by @spam-n-eggs in https://github.com/dominion-solutions/ansible-netbird/pull/23
+
+**Full Changelog**: https://github.com/dominion-solutions/ansible-netbird/compare/0.1.4...0.1.5
+
 ## Documentation updates - 2024-03-01
 
 Closes #16
