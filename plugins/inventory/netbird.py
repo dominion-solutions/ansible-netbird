@@ -93,7 +93,6 @@ from ansible.utils.display import Display
 
 # Specific for the NetbirdAPI Class
 import json
-import re
 
 try:
     import requests
@@ -152,7 +151,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         try:
             self.peers = self.client.ListPeers()
         except Exception:
-            raise AnsibleError(f"Could not retrieve the Netbird inventory.  Check the API Key and URL.")
+            raise AnsibleError("Could not retrieve the Netbird inventory.  Check the API Key and URL.")
 
     def _filter_by_config(self):
         """Filter peers by user specified configuration."""
