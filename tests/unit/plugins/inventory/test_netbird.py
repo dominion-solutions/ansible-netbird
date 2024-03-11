@@ -111,3 +111,29 @@ def test_with_multiple_groups(inventory, netbird_api_multigroup):
     assert inventory.inventory.groups is not None
     assert 'All' in inventory.inventory.groups
     assert 'Development' in inventory.inventory.groups
+
+
+def test_with_multiple_groups(inventory, netbird_api_multigroup):
+    loader = DataLoader()
+    path = 'tests/unit/module_utils/inventories/fixtures/only_connected.netbird.yml'
+    inventory._build_client = MagicMock()
+    inventory.client = netbird_api_multigroup
+    inventory.parse(InventoryData(), loader, path, False)
+    assert inventory.inventory is not None
+    assert inventory.inventory.hosts is not None
+    assert inventory.inventory.groups is not None
+    assert 'All' in inventory.inventory.groups
+    assert 'Development' in inventory.inventory.groups
+
+
+def test_use_ip_address(inventory, netbird_api_multigroup):
+    loader = DataLoader()
+    path = 'tests/unit/module_utils/inventories/fixtures/ip_address.netbird.yml'
+    inventory._build_client = MagicMock()
+    inventory.client = netbird_api_multigroup
+    inventory.parse(InventoryData(), loader, path, False)
+    assert inventory.inventory is not None
+    assert inventory.inventory.hosts is not None
+    assert inventory.inventory.groups is not None
+    assert 'All' in inventory.inventory.groups
+    assert 'Development' in inventory.inventory.groups

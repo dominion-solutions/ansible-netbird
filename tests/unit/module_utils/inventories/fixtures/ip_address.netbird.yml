@@ -1,12 +1,13 @@
 ---
-plugin: netbird
+plugin: dominion_solutions.netbird.netbird
 api_key: nbp_this_is_a_fake_api_key
 api_url: https://netbird.example.com/api/v1
 ip_style: plain
-netbird_connected: True
+strict: No
+netbird_connected: No
 netbird_groups:
 groups:
-strict: No
 keyed_groups:
 compose:
   ansible_ssh_host: ip
+  ansible_ssh_port: 22

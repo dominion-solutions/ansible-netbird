@@ -28,23 +28,23 @@ body:
     attributes:
       label: Package Version
       description: What version of our Package are you running? Please be as specific as possible
-      placeholder: 2.0.0
+      placeholder: 0.1.5
     validations:
       required: true
   - type: input
-    id: php-version
+    id: python-version
     attributes:
-      label: PHP Version
-      description: What version of PHP are you running? Please be as specific as possible
-      placeholder: 8.2.0
+      label: Python Version
+      description: What version of Python are you running? Please be as specific as possible
+      placeholder: 3.10.12
     validations:
       required: true
   - type: input
-    id: laravel-version
+    id: ansible-version
     attributes:
-      label: Laravel Version
+      label: Ansible Version
       description: What version of Laravel are you running? Please be as specific as possible
-      placeholder: 9.0.0
+      placeholder: 2.16.4
     validations:
       required: true
   - type: dropdown
