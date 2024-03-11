@@ -151,8 +151,8 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         """Get the inventory from the Netbird API"""
         try:
             self.peers = self.client.ListPeers()
-        except ConnectionRefusedError|ConnectionError as e:
-            raise AnsibleError(f"Could not retrieve the Netbird inventory: {e.message}")
+        except Exception as e:
+            raise AnsibleError from e
 
     def _filter_by_config(self):
         """Filter peers by user specified configuration."""
