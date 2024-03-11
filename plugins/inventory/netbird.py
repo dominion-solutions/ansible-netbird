@@ -151,7 +151,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         """Get the inventory from the Netbird API"""
         try:
             self.peers = self.client.ListPeers()
-        except:
+        except Exception:
             raise AnsibleError(f"Could not retrieve the Netbird inventory.  Check the API Key and URL.")
 
     def _filter_by_config(self):
