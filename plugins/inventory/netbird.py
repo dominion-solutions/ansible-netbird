@@ -152,7 +152,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         try:
             self.peers = self.client.ListPeers()
         except Exception as e:
-            raise AnsibleError(e)
+            raise AnsibleError from e
 
     def _filter_by_config(self):
         """Filter peers by user specified configuration."""
