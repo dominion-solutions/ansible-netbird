@@ -152,7 +152,7 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         try:
             self.peers = self.client.ListPeers()
         except Exception as e:
-            raise AnsibleError(f"Could not retrieve the Netbird inventory: {e.message}")
+            raise AnsibleError from e
 
     def _filter_by_config(self):
         """Filter peers by user specified configuration."""
@@ -290,11 +290,8 @@ class NetbirdApi:
         }
         peers = []
         response = requests.request("GET", url, headers=headers)
-        if response.status_code in [401]:
-            raise ConnectionRefusedError(f"{response.status_code}: {response.text}\nPlease check the API Key and URL.")
-
-        elif re.match('4\\d\\d', response.status_code):
-            raise ConnectionError(f"{response.status_code}: {response.text}\nPlease check the API Key and URL.")
+        if re.match('4\\d\\d', response.status_code):
+            raise Exception(f"{response.status_code}: {response.text}\nPlease check the API Key and URL.")
 
         peer_json = json.loads(response.text)
         for current_peer_map in peer_json:
