@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## Fixed an accidental bug in the last release - 2024-03-11
+
+Bug was accidentally released in the last release.  Fixed.
+
+### What's Changed
+
+* Mjh/fix issues with message by @spam-n-eggs in https://github.com/dominion-solutions/ansible-netbird/pull/24
+
+**Full Changelog**: https://github.com/dominion-solutions/ansible-netbird/compare/0.1.5...0.1.6
+
 ## Small Bugfixes - 2024-03-11
 
 Minor fixes including:
