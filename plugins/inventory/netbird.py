@@ -149,7 +149,10 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
     def _get_peer_inventory(self):
         """Get the inventory from the Netbird API"""
-        self.peers = self.client.ListPeers()
+        try:
+            self.peers = self.client.ListPeers()
+        except Exception as e:
+            raise AnsibleError(f"Could not retrieve the Netbird inventory: {e}")
 
     def _filter_by_config(self):
         """Filter peers by user specified configuration."""
