@@ -290,7 +290,7 @@ class NetbirdApi:
         }
         peers = []
         response = requests.request("GET", url, headers=headers)
-        if re.match('4\d\d', response.status_code):
+        if response.status_code in [401, 404]:
             raise Exception(f"{response.status_code}: {response.text}\nPlease check the API Key and URL.")
 
         peer_json = json.loads(response.text)
