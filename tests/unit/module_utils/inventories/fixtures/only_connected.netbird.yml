@@ -9,3 +9,4 @@ groups:
 strict: No
 keyed_groups:
 compose:
+  ansible_ssh_host: ip

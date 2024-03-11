@@ -93,6 +93,7 @@ from ansible.utils.display import Display
 
 # Specific for the NetbirdAPI Class
 import json
+import re
 
 try:
     import requests
@@ -286,6 +287,12 @@ class NetbirdApi:
         }
         peers = []
         response = requests.request("GET", url, headers=headers)
+        if response.status_code in [401]:
+            raise ConnectionRefusedError(f"{response.status_code}: {response.text}\nPlease check the API Key and URL.")
+
+        elif re.match('4\\d\\d', response.status_code):
+            raise ConnectionError(f"{response.status_code}: {response.text}\nPlease check the API Key and URL.")
+
         peer_json = json.loads(response.text)
         for current_peer_map in peer_json:
             current_peer = Peer(current_peer_map["hostname"], current_peer_map['dns_label'], current_peer_map["id"], current_peer_map)
