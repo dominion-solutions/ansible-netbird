@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## Bug Fixes - Parameters - 2024-04-03
+
+### Bug Fixes
+
+Thanks to @ipsecguy for pointing out that there was an issue with the compose variables.
+
+- #28 - The compose parameter is updated to accept a `dict()` now.
+- The documentation has been improved as well.
+- Some small issues around creating bugs / questions have been resolved.
+
+### What's Changed
+
+* Update README.md by @spam-n-eggs in https://github.com/dominion-solutions/ansible-netbird/pull/26
+* Fixes #28 - Tested with a separate inventory. by @spam-n-eggs in https://github.com/dominion-solutions/ansible-netbird/pull/29
+
+**Full Changelog**: https://github.com/dominion-solutions/ansible-netbird/compare/0.1.6...0.2.0
+
 ## Fixed an accidental bug in the last release - 2024-03-11
 
 Bug was accidentally released in the last release.  Fixed.
