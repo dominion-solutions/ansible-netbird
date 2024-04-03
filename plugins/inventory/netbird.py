@@ -59,9 +59,8 @@ options:
         description: Whether or not to fail if a group or variable is not found.
     compose:
         description: compose variables for Ansible based on jinja2 expression and inventory vars
-        default: False
         required: False
-        type: boolean
+        type: dict
     keyed_groups:
         description: create groups for plugins based on variable values and add the corresponding hosts to it
         type: list

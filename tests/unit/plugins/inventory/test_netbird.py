@@ -58,6 +58,20 @@ def netbird_api_multigroup():
     return mock_netbird_api
 
 
+@pytest.fixture(scope="module")
+def netbird_api_spaces_in_group():
+    mock_netbird_api = NetbirdApi(None, None)
+    response_data = []
+    with open('tests/unit/module_utils/inventories/fixtures/peers_spaces_in_group.json') as peers_file:
+        peers_map = json.load(peers_file)
+        for data in peers_map:
+            response_data.append(Peer(data['hostname'], data['dns_label'], data['id'], data))
+
+    mock_netbird_api.ListPeers = MagicMock(return_value=response_data)
+
+    return mock_netbird_api
+
+
 def test_missing_access_token_lookup(inventory):
     loader = DataLoader()
     inventory._options = {'api_key': None, 'api_url': None}
@@ -137,3 +151,16 @@ def test_use_ip_address(inventory, netbird_api_multigroup):
     assert inventory.inventory.groups is not None
     assert 'All' in inventory.inventory.groups
     assert 'Development' in inventory.inventory.groups
+
+
+def test_use_group_with_spaces(inventory, netbird_api_spaces_in_group):
+    loader = DataLoader()
+    path = 'tests/unit/module_utils/inventories/fixtures/spaces_in_group.netbird.yml'
+    inventory._build_client = MagicMock()
+    inventory.client = netbird_api_spaces_in_group
+    inventory.parse(InventoryData(), loader, path, False)
+    assert inventory.inventory is not None
+    assert inventory.inventory.hosts is not None
+    assert inventory.inventory.groups is not None
+    assert 'All' in inventory.inventory.groups
+    assert 'Test Group With Spaces' in inventory.inventory.groups
