@@ -13,7 +13,7 @@ Role Variables
 - `netbird_deployment_mode`: Specifies the deployment mode for Netbird. It can be either:
   - 'cloud-hosted': For deploying Netbird using the cloud-hosted instance.
   - 'self-hosted': For deploying a self-hosted instance of Netbird.
-- `netbird_management_url`: The management URL for the self-hosted instance. This variable is required if `netbird_deployment_mode` is set to `'self-hosted'`.
+- `netbird_mgmt_url`: The management URL for the self-hosted instance. This variable is required if `netbird_deployment_mode` is set to `'self-hosted'`.
 
 Dependencies
 ------------

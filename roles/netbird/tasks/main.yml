@@ -1,8 +1,8 @@
 ---
 # tasks file for netbird
-- name: Check if self-hosted installation comes with a netbird_management_url
+- name: Check if self-hosted installation comes with a netbird_mgmt_url
   ansible.builtin.assert:
-    that: netbird_management_url is defined and netbird_management_url != ''
+    that: netbird_mgmt_url is defined and netbird_mgmt_url != ''
     fail_msg: "The management URL must be defined and non-empty for self-hosted installations."
   when: deployment_mode == 'self-hosted'
 
@@ -34,7 +34,7 @@
 
 - name: Start Netbird (Self-Hosted mode)
   become: true
-  ansible.builtin.shell: netbird up --setup-key="{{ netbird_setup_key }}" --management-url="{{ netbird_management_url }}"
+  ansible.builtin.shell: netbird up --setup-key="{{ netbird_setup_key }}" --management-url="{{ netbird_mgmt_url }}"
   when:
     - netbird_deployment_mode is true
     - "'NeedsLogin' in netbird_status.stdout or 'LoginFailed' in netbird_status.stdout"
