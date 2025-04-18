@@ -30,7 +30,7 @@
   when: 
     - netbird_deployment_mode is true
     - "'NeedsLogin' in netbird_status.stdout or 'LoginFailed' in netbird_status.stdout"
-    - deployment_mode == 'saas'
+    - deployment_mode == 'cloud-hosted'
 
 - name: Start Netbird (Self-Hosted mode)
   become: true

@@ -11,7 +11,7 @@ Role Variables
 - `netbird_setup_key`: The key that is used to automate the setup process.
 - `netbird_register`: A true/false defining whether or not register netbird.
 - `netbird_deployment_mode`: Specifies the deployment mode for Netbird. It can be either:
-  - 'saas': For deploying Netbird using the SaaS instance.
+  - 'cloud-hosted': For deploying Netbird using the cloud-hosted instance.
   - 'self-hosted': For deploying a self-hosted instance of Netbird.
 - `netbird_management_url`: The management URL for the self-hosted instance. This variable is required if `netbird_deployment_mode` is set to `'self-hosted'`.
 
