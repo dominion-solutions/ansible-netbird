@@ -1,2 +1,3 @@
 ---
 # defaults file for netbird
+netbird_deployment_mode: saas
