@@ -1,2 +1,3 @@
 ---
 # defaults file for netbird
+netbird_mgmt_url: https://api.netbird.io:443

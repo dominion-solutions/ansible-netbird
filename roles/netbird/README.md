@@ -10,6 +10,7 @@ Role Variables
 --------------
 - `netbird_setup_key`: The key that is used to automate the setup process.
 - `netbird_register`: A true/false defining whether or not register netbird.
+- `netbird_mgmt_url`: The management URL for the self-hosted instance. If not specified, defaults to the cloud-hosted instance (https://api.netbird.io:443).
 
 Dependencies
 ------------

@@ -2,7 +2,7 @@
 # tasks file for netbird
 - name: Check for Netbird Installation
   ansible.builtin.shell:
-    cmd: netbird --version
+    cmd: netbird version
   ignore_errors: true
   register: netbird_installed
 
@@ -20,5 +20,7 @@
 
 - name: Start Netbird
   become: true
-  ansible.builtin.shell: netbird up --setup-key="{{ netbird_setup_key }}"
-  when: netbird_register is true and 'NeedsLogin' in netbird_status.stdout
+  ansible.builtin.shell: netbird up --setup-key="{{ netbird_setup_key }}" --management-url="{{ netbird_mgmt_url }}"
+  when: 
+    - netbird_register is true
+    - "'NeedsLogin' in netbird_status.stdout or 'LoginFailed' in netbird_status.stdout"
