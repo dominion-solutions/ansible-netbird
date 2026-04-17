@@ -1,0 +1,44 @@
+[
+    {
+        "id": "auth0|ABC123xyz4567890",
+        "email": "john.doe@example.com",
+        "name": "John Doe",
+        "role": "admin",
+        "status": "active",
+        "last_login": "2024-02-10T22:01:27.744131502Z",
+        "auto_groups": ["ch8i4ug6lnn4g9hqv7m0"],
+        "is_current": false,
+        "is_service_user": false,
+        "is_blocked": false,
+        "pending_approval": false,
+        "issued": "api"
+    },
+    {
+        "id": "auth0|DEF456abc7890123",
+        "email": "jane.smith@example.com",
+        "name": "Jane Smith",
+        "role": "user",
+        "status": "active",
+        "last_login": "2024-02-11T10:00:00.000000000Z",
+        "auto_groups": [],
+        "is_current": false,
+        "is_service_user": false,
+        "is_blocked": false,
+        "pending_approval": false,
+        "issued": "api"
+    },
+    {
+        "id": "service_user_001",
+        "email": "",
+        "name": "CI/CD Service Account",
+        "role": "user",
+        "status": "active",
+        "last_login": "2024-02-15T08:00:00.000000000Z",
+        "auto_groups": [],
+        "is_current": false,
+        "is_service_user": true,
+        "is_blocked": false,
+        "pending_approval": false,
+        "issued": "api"
+    }
+]

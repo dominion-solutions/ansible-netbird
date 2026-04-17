@@ -1,0 +1,106 @@
+[
+    {
+        "accessible_peers_count": 2,
+        "approval_required": false,
+        "connected": true,
+        "dns_label": "laptop-john.netbird.cloud",
+        "groups": [
+            {
+                "id": "2a3b4c5d6e7f8g9h0i1j",
+                "name": "All",
+                "peers_count": 4
+            }
+        ],
+        "hostname": "laptop-john",
+        "id": "peer001",
+        "ip": "100.64.0.1",
+        "last_login": "2024-02-10T22:01:27.744131502Z",
+        "last_seen": "2024-02-11T03:21:42.202104672Z",
+        "login_expiration_enabled": true,
+        "login_expired": false,
+        "name": "laptop-john",
+        "os": "Linux Mint 21.3",
+        "ssh_enabled": true,
+        "ui_version": "netbird-desktop-ui/0.25.7",
+        "user_id": "auth0|ABC123xyz4567890",
+        "version": "0.25.7"
+    },
+    {
+        "accessible_peers_count": 2,
+        "approval_required": false,
+        "connected": true,
+        "dns_label": "desktop-john.netbird.cloud",
+        "groups": [
+            {
+                "id": "2a3b4c5d6e7f8g9h0i1j",
+                "name": "All",
+                "peers_count": 4
+            }
+        ],
+        "hostname": "desktop-john",
+        "id": "peer002",
+        "ip": "100.64.0.2",
+        "last_login": "2024-02-09T10:00:00.000000000Z",
+        "last_seen": "2024-02-16T16:14:35.853243309Z",
+        "login_expiration_enabled": false,
+        "login_expired": false,
+        "name": "desktop-john",
+        "os": "Ubuntu 22.04",
+        "ssh_enabled": true,
+        "ui_version": "netbird-desktop-ui/0.25.7",
+        "user_id": "auth0|ABC123xyz4567890",
+        "version": "0.25.7"
+    },
+    {
+        "accessible_peers_count": 2,
+        "approval_required": false,
+        "connected": true,
+        "dns_label": "macbook-jane.netbird.cloud",
+        "groups": [
+            {
+                "id": "2a3b4c5d6e7f8g9h0i1j",
+                "name": "All",
+                "peers_count": 4
+            }
+        ],
+        "hostname": "macbook-jane",
+        "id": "peer003",
+        "ip": "100.64.0.3",
+        "last_login": "2024-02-11T10:00:00.000000000Z",
+        "last_seen": "2024-02-16T12:00:00.000000000Z",
+        "login_expiration_enabled": false,
+        "login_expired": false,
+        "name": "macbook-jane",
+        "os": "Darwin 13.2.1",
+        "ssh_enabled": false,
+        "ui_version": "netbird-desktop-ui/0.25.7",
+        "user_id": "auth0|DEF456abc7890123",
+        "version": "0.25.7"
+    },
+    {
+        "accessible_peers_count": 2,
+        "approval_required": false,
+        "connected": true,
+        "dns_label": "ci-runner.netbird.cloud",
+        "groups": [
+            {
+                "id": "2a3b4c5d6e7f8g9h0i1j",
+                "name": "All",
+                "peers_count": 4
+            }
+        ],
+        "hostname": "ci-runner",
+        "id": "peer004",
+        "ip": "100.64.0.100",
+        "last_login": "2024-02-15T08:00:00.000000000Z",
+        "last_seen": "2024-02-16T16:00:00.000000000Z",
+        "login_expiration_enabled": false,
+        "login_expired": false,
+        "name": "ci-runner",
+        "os": "Alpine Linux 3.19.1",
+        "ssh_enabled": false,
+        "ui_version": "",
+        "user_id": "service_user_001",
+        "version": "0.25.5"
+    }
+]

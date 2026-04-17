@@ -55,6 +55,21 @@ options:
         description: Filter the inventory by connected peers.
         default: True
         type: boolean
+    list_user_peers:
+        description: >
+            Group peers by their associated user. When enabled, creates groups based on
+            user email/name and adds the peer IPs as host variables. Users without peers
+            are skipped. Service users can be included or excluded via include_service_users.
+        default: False
+        type: boolean
+    include_service_users:
+        description: Include service users when list_user_peers is enabled.
+        default: False
+        type: boolean
+    user_group_prefix:
+        description: Prefix for user-based groups when list_user_peers is enabled.
+        default: "user_"
+        type: string
     strict:
         description: Whether or not to fail if a group or variable is not found.
     compose:
@@ -82,6 +97,17 @@ strict: No
 compose:
   ansible_ssh_host: label
   ansible_ssh_port: 22
+
+---
+# This inventory groups peers by their associated user
+plugin: dominion_solutions.netbird.netbird
+api_key: << api_key >>
+api_url: << api_url >>
+list_user_peers: true
+include_service_users: false
+user_group_prefix: "user_"
+# This will create groups like user_john_doe with their peers as hosts
+# Each host will have user_email, user_name, and user_id hostvars
 
 """
 
@@ -139,6 +165,65 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         for group in self.netbird_groups:
             self.inventory.add_group(group)
 
+    def _sanitize_group_name(self, name):
+        """Sanitize a string to be a valid Ansible group name."""
+        import re
+        # Replace invalid characters with underscores
+        sanitized = re.sub(r'[^a-zA-Z0-9_]', '_', name)
+        # Ensure it doesn't start with a digit
+        if sanitized and sanitized[0].isdigit():
+            sanitized = '_' + sanitized
+        return sanitized.lower()
+
+    def _add_user_groups(self):
+        """Add user-based groups to the inventory when list_user_peers is enabled."""
+        if not self.get_option('list_user_peers'):
+            return
+
+        prefix = self.get_option('user_group_prefix')
+        include_service_users = self.get_option('include_service_users')
+
+        # Build a mapping of user_id to user data
+        self.user_map = {}
+        for user in self.users:
+            user_id = user.get('id')
+            is_service_user = user.get('is_service_user', False)
+
+            if is_service_user and not include_service_users:
+                continue
+
+            self.user_map[user_id] = user
+
+        # Build a mapping of user_id to peers
+        self.user_peers = {}
+        for peer in self.peers:
+            user_id = peer.data.get('user_id')
+            if user_id and user_id in self.user_map:
+                if user_id not in self.user_peers:
+                    self.user_peers[user_id] = []
+                self.user_peers[user_id].append(peer)
+
+        # Create groups for users that have peers
+        for user_id, peers in self.user_peers.items():
+            user = self.user_map.get(user_id)
+            if not user:
+                continue
+
+            # Use email or name for group name
+            user_name = user.get('name') or user.get('email') or user_id
+            group_name = prefix + self._sanitize_group_name(user_name)
+            self.inventory.add_group(group_name)
+
+            # Add peers to user group
+            for peer in peers:
+                self.inventory.add_host(peer.label, group=group_name)
+                # Add user-related hostvars to the peer
+                self.inventory.set_variable(peer.label, 'user_id', user_id)
+                self.inventory.set_variable(peer.label, 'user_email', user.get('email', ''))
+                self.inventory.set_variable(peer.label, 'user_name', user.get('name', ''))
+                self.inventory.set_variable(peer.label, 'user_role', user.get('role', ''))
+                self.inventory.set_variable(peer.label, 'user_is_service_user', user.get('is_service_user', False))
+
     def _add_peers_to_group(self):
         """ Add peers to the groups in the inventory. """
         for peer in self.peers:
@@ -151,6 +236,13 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
             self.peers = self.client.ListPeers()
         except Exception:
             raise AnsibleError("Could not retrieve the Netbird inventory.  Check the API Key and URL.")
+
+    def _get_users(self):
+        """Get the users from the Netbird API"""
+        try:
+            self.users = self.client.ListUsers()
+        except Exception:
+            raise AnsibleError("Could not retrieve the Netbird users.  Check the API Key and URL.")
 
     def _filter_by_config(self):
         """Filter peers by user specified configuration."""
@@ -215,15 +307,27 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
 
         self._options = self._read_config_data(path)
         self.peers = None
+        self.users = []
 
         cache_key = self.get_cache_key(path)
+        users_cache_key = cache_key + '_users'
 
         if cache:
             cache = self.get_option('cache')
         update_cache = False
         if cache:
             try:
-                self.peers = [Peer(None, i["id"], i) for i in self._cache[cache_key]]
+                self.peers = [
+                    Peer(
+                        i.get("hostname"),
+                        i.get("dns_label", i.get("id")),
+                        i.get("id"),
+                        i
+                    ) for i in self._cache[cache_key]
+                ]
+                # Also try to load users from cache if list_user_peers is enabled
+                if self.get_option('list_user_peers'):
+                    self.users = self._cache.get(users_cache_key, [])
             except KeyError:
                 update_cache = True
 
@@ -232,9 +336,21 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         if self.peers is None:
             self._build_client(loader)
             self._get_peer_inventory()
+            # Fetch users if list_user_peers is enabled
+            if self.get_option('list_user_peers'):
+                self._get_users()
+
+        # If we have peers from cache but no users and list_user_peers is enabled, fetch users
+        if self.peers is not None and self.get_option('list_user_peers') and not self.users:
+            if not hasattr(self, 'client') or self.client is None:
+                self._build_client(loader)
+            self._get_users()
+            update_cache = True
 
         if update_cache:
             self._cache[cache_key] = self._cacheable_inventory()
+            if self.get_option('list_user_peers'):
+                self._cache[users_cache_key] = self.users
 
         self.populate()
 
@@ -247,6 +363,10 @@ class InventoryModule(BaseInventoryPlugin, Constructable, Cacheable):
         self._add_groups()
         self._add_peers_to_group()
         self._add_hostvars_for_peers()
+
+        # Add user-based groups if enabled
+        if self.get_option('list_user_peers'):
+            self._add_user_groups()
 
         for peer in self.peers:
             variables = self.inventory.get_host(peer.label).get_vars()
@@ -296,6 +416,28 @@ class NetbirdApi:
             current_peer = Peer(current_peer_map["hostname"], current_peer_map['dns_label'], current_peer_map["id"], current_peer_map)
             peers.append(current_peer)
         return peers
+
+    def ListUsers(self, service_user=None):
+        """List all users in the Netbird API
+
+        Args:
+            service_user: Optional boolean to filter by service users only or regular users only.
+
+        Returns:
+            users: A list of user dictionaries.
+        """
+        url = f"{self.api_url}/users"
+        if service_user is not None:
+            url += f"?service_user={'true' if service_user else 'false'}"
+        headers = {
+            'Accept': 'application/json',
+            'Authorization': f'Token {self.api_key}'
+        }
+        response = requests.request("GET", url, headers=headers)
+        if response.status_code in [401, 404]:
+            raise Exception(f"{response.status_code}: {response.text}\nPlease check the API Key and URL.")
+
+        return json.loads(response.text)
 
 
 class Peer:
